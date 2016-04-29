@@ -288,6 +288,7 @@ class EX1B(object):
 		return np.mean(np.maximum(self.Value0-self.c-y_svr,0))
 
 def re_poly(kk,N_i,deg=2):
+	from EX1Bc import EX1B
 	if kk/N_i < 1.:
 		eel = np.nan
 	else:
@@ -297,6 +298,7 @@ def re_poly(kk,N_i,deg=2):
 	return eel
 
 def re_svr(kk,N_i):
+	from EX1Bc import EX1B
 	if kk/N_i < 1.:
 		eel = np.nan
 	else:
@@ -305,24 +307,36 @@ def re_svr(kk,N_i):
 		eel = port.svr()
 	return eel
 
-def conv(K,N_i,L=1000):
+def conv(K,N_i=1,L=1000,regr_method=re_poly,filename='EX1Bc'):
 	import scipy.io
 	import ipyparallel
 	from multiprocessing import cpu_count
 	import os
 
-	print "#CPUs: %d" % cpu_count()
+	print
+	print "##################################"
+	print "# Risk Estimation via Regression #"
+	print "##################################"
+	print
+	print "regression method: %s" % str(regr_method)
+	print "Output file: %s.mat" % filename
+	print "N_i = %d; L = %d" % (N_i, L)
+	print
+	print "Setting up ipyparallel"
+	print "CPU count: %d" % cpu_count()
 	print
 	rc = ipyparallel.Client()
-	print("Check 1")
+	print("Check point 1")
 	rc.block = True
-	print("Check 2")
+	print("Check point 2")
 	view = rc.load_balanced_view()
-	print("Check 3")
+	print("Check point 3")
 	dview = rc[:]
-	print("Check 4")
-	dview.map(os.chdir, ['/home/l366wang/Code/f2c/New/']*cpu_count())
-	print("Check 5")
+	print("Check point 4")
+	dview.map(os.chdir, ['/home/l366wang/Code/risk_regr/']*cpu_count())
+	print("Check point 5")
+	print
+	print "Commensing computations..."
 
 
 	EEL_true = 0.0203852730
@@ -335,20 +349,21 @@ def conv(K,N_i,L=1000):
 	for k_idx, kk in enumerate(K):
 		print "K = %d" % kk
 		t0 = time.time()
-		eel_data = view.map(re_svr,[kk]*L,[N_i]*L)
+		eel_data = view.map(regr_method,[kk]*L,[N_i]*L)
 
 		mse[k_idx] = np.mean((np.array(eel_data)-EEL_true)**2)
 		bias2[k_idx] = (np.mean(eel_data)-EEL_true)**2
 		var[k_idx] = np.mean((np.array(eel_data)-np.mean(eel_data))**2)
 		t[k_idx] = time.time()-t0
 		print "%.2fs elapsed" % (time.time()-t0)
-		scipy.io.savemat('EX1Bc.mat',mdict={'mse':mse,'bias2':bias2,'var':var,'t':t})
+		scipy.io.savemat(filename+'.mat',mdict={'K':K,'N_i':N_i,'L':L,\
+			'mse':mse,'bias2':bias2,'var':var,'t':t})
 		print
 
 if __name__ == "__main__":
 	import EX1Bc as EX1
 	K = [ii**5 for ii in range(2,23)]
-	EX1.conv(K, N_i=1, L=1000)
+	EX1.conv(K, N_i=1, L=1000, regr_method=re_svr, filename='EX1B_svr')
 
 
 
