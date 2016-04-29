@@ -135,7 +135,7 @@ class EX1B(object):
 
 
 	def regr_data_prep(self,kk,N_i=1):
-		''' Regression data preparation vias nested simulations
+		''' Regression data preparation via nested simulations
 		'''
 		import customML as cm
 
@@ -307,7 +307,7 @@ def re_svr(kk,N_i):
 		eel = port.svr()
 	return eel
 
-def conv(K,N_i=1,L=1000,regr_method=re_poly,filename='EX1Bc'):
+def conv(K,N_i=1,L=1000,regr_method=re_svr,filename='EX1Bc'):
 	import scipy.io
 	import ipyparallel
 	from multiprocessing import cpu_count
