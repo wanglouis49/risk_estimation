@@ -267,6 +267,7 @@ class EX1B(object):
 		svr = SVR(kernel='rbf', C=C, gamma=gamma)
 		svr.fit(self.X/self.S0, self.y[:,0])
 
+		# predicting
 		y_svr = svr.predict(self.X_pred/self.S0)
 
 		return np.mean(np.maximum(self.Value0-self.c-y_svr,0))
