@@ -173,7 +173,7 @@ class EX100V(object):
 			# Predicting
 			y_svr[:,group] = svr.predict(X_pred/self.S0)
 
-		print self.Value0-self.c-np.sum(y_svr,axis=1)
+		#print self.Value0-self.c-np.sum(y_svr,axis=1)
 		print max(self.Value0-self.c-np.sum(y_svr,axis=1))
 
 		return np.mean(np.maximum(self.Value0-self.c-np.sum(y_svr,axis=1),0))
