@@ -179,15 +179,80 @@ class EX100V(object):
 		return np.mean(np.maximum(self.Value0-self.c-np.sum(y_svr,axis=1),0))
 
 def re_poly(kk,N_i,deg=2):
-	pass
+	from EX100Vc import EX100V
+	if kk/N_i < 1.:
+		eel = np.nan
+	else:
+		port = EX100V()
+		port.regr_data_prep(kk,N_i)
+		eel = port.poly_regr(deg=deg)
+	return eel
 
 def re_svr(kk,N_i):
-	pass
+	from EX100Vc import EX100V
+	if kk/N_i < 1.:
+		eel = np.nan
+	else:
+		port = EX100V()
+		port.regr_data_prep(kk,N_i)
+		eel = port.svr()
+	return eel
 
-def conv(K,N_i=1,L=1000,regr_method=re_svr,filename='EX100Vc'):
-	pass
+def conv(K,N_i=1,L=100,regr_method=re_svr,filename='EX100Vc'):
+	import scipy.io
+	import ipyparallel
+	from multiprocessing import cpu_count
+	import os
+
+	print
+	print "##################################"
+	print "# Risk Estimation via Regression #"
+	print "##################################"
+	print
+	print "regression method: %s" % str(regr_method)
+	print "Output file: %s.mat" % filename
+	print "N_i = %d; L = %d" % (N_i, L)
+	print
+	print "Setting up ipyparallel"
+	print "CPU count: %d" % cpu_count()
+	print
+	rc = ipyparallel.Client()
+	print("Check point 1")
+	rc.block = True
+	print("Check point 2")
+	view = rc.load_balanced_view()
+	print("Check point 3")
+	dview = rc[:]
+	print("Check point 4")
+	dview.map(os.chdir, ['/home/l366wang/Code/risk_regr/']*cpu_count())
+	print("Check point 5")
+	print
+	print "Checks done. Commensing computations..."
+	print
+
+
+	EEL_true = 1.818317262496906
+
+	mse = np.zeros(len(K))
+	bias2 = np.zeros(len(K))
+	var = np.zeros(len(K))
+	t = np.zeros(len(K))
+
+	for k_idx, kk in enumerate(K):
+		print "K = %d" % kk
+		t0 = time.time()
+		eel_data = view.map(regr_method,[kk]*L,[N_i]*L)
+
+		mse[k_idx] = np.mean((np.array(eel_data)-EEL_true)**2)
+		bias2[k_idx] = (np.mean(eel_data)-EEL_true)**2
+		var[k_idx] = np.mean((np.array(eel_data)-np.mean(eel_data))**2)
+		t[k_idx] = time.time()-t0
+		print "%.2fs elapsed" % (time.time()-t0)
+		scipy.io.savemat(filename+'.mat',mdict={'K':K,'N_i':N_i,'L':L,\
+			'mse':mse,'bias2':bias2,'var':var,'t':t})
+		print
 
 if __name__ == "__main__":
 	import EX100Vc as EX100
-	K = [ii**5 for ii in range (4,23)]
-	EX100.conv(K, N_i=1, L=1000, regr_method=re_svr, filename='EX100Vc')
+	K = [ii**5 for ii in range(4,23)]
+	EX100.conv(K, N_i=1, L=100, regr_method=re_poly, filename='EX100Vc')
