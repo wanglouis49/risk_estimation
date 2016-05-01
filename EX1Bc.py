@@ -267,6 +267,7 @@ class EX1B(object):
 		svr = SVR(kernel='rbf', C=C, gamma=gamma)
 		svr.fit(self.X/self.S0, self.y[:,0])
 
+		# predicting
 		y_svr = svr.predict(self.X_pred/self.S0)
 
 		return np.mean(np.maximum(self.Value0-self.c-y_svr,0))
@@ -281,9 +282,9 @@ class EX1B(object):
 		svr = GridSearchCV(SVR(C=1000.,kernel='rbf',gamma=1e-4), cv=5,
                        param_grid={"C": [100., 1000.],
                                    "gamma": [1e-3,1e-2,1e-1]}, n_jobs=-1)
-		svr.fit(self.X/self.S0, self.y[:,0])
+		svr.fit(self.X, self.y[:,0])
 
-		y_svr = svr.predict(self.X_pred/self.S0)
+		y_svr = svr.predict(self.X_pred)
 
 		return np.mean(np.maximum(self.Value0-self.c-y_svr,0))
 
