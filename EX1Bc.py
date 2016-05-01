@@ -337,7 +337,8 @@ def conv(K,N_i=1,L=1000,regr_method=re_svr,filename='EX1Bc'):
 	dview.map(os.chdir, ['/home/l366wang/Code/risk_regr/']*cpu_count())
 	print("Check point 5")
 	print
-	print "Commensing computations..."
+	print "Checks done. Commensing computations..."
+	print
 
 
 	EEL_true = 0.0203852730
