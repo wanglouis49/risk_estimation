@@ -318,6 +318,51 @@ def dnOutPut(S0, K, r, T, sigma, Sb):
 	value = value.clip(0)
 	return value
 
+def dnOutCall(S0, K, r, T, sigma, Sb):
+	''' Valuation of European down-and-out barrier call option in BSM model.
+	Analytical formula.
+
+	Parameters
+	==========
+	S0 : float
+		initial stock/index level
+	K : float
+		strike price
+	T : float
+		maturity data (in year fractions)
+	r : float
+		constant risk-free short rate
+	sigma : float
+		volatility factor in diffusion term
+	Sb : float
+		barrirer level
+
+	Returns
+	=======
+	value : float
+		present value of the European option
+	'''
+
+	# assert type(S0) is float and type(Sb) is float and type(K) is float and type(r) is float and type(T) is float and type(sigma) is float, "Unrecongnized input, check type"
+	a = (Sb / S0) ** (-1. + 2. * r / sigma **2)
+	b = (Sb / S0) ** (1. + 2. * r / sigma **2)
+	d1 = (log(S0 / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * sqrt(T))
+	d2 = (log(S0 / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * sqrt(T))
+	d3 = (log(S0 / Sb) + (r - 0.5 * sigma ** 2) * T) / (sigma * sqrt(T))
+	d4 = (log(S0 / Sb) + (r + 0.5 * sigma ** 2) * T) / (sigma * sqrt(T))
+	d5 = (log(S0 / Sb) - (r + 0.5 * sigma ** 2) * T) / (sigma * sqrt(T))
+	d6 = (log(S0 / Sb) - (r - 0.5 * sigma ** 2) * T) / (sigma * sqrt(T))
+	d7 = (log(S0 * K / Sb ** 2) - (r - 0.5 * sigma ** 2) * T) / (sigma * sqrt(T))
+	d8 = (log(S0 * K / Sb ** 2) - (r + 0.5 * sigma ** 2) * T) / (sigma * sqrt(T))
+	if K >= Sb:
+		value = S0*(stats.norm.cdf(d1,0.,1.) - b*(1.-stats.norm.cdf(d8,0.,1.)))\
+				- K*exp(-r*T)*(stats.norm.cdf(d2,0.,1.) - a*(1.-stats.norm.cdf(d7,0.,1.)))
+	else:
+		value = S0*(stats.norm.cdf(d3,0.,1.) - b*(1.-stats.norm.cdf(d6,0.,1.)))\
+				- K*exp(-r*T)*(stats.norm.cdf(d4,0.,1.) - a*(1.-stats.norm.cdf(d5,0.,1.)))
+	value = value.clip(0)
+	return value
+
 def test_dnOutPut():
 	P0 = dnOutPut(S0=100.,K=101.,r=0.03,T=1./12.,sigma=0.2,Sb=91.)
 	print "Analytical: European down-out put option (S0=100,K=101,r=0.03,T=1/12,sigma=0.2,Sb=91)"
@@ -382,6 +427,61 @@ def rear_end_dnOutPut(S, K, r, T, sig, H, tau, q):
 
     return P2do
 
+def rear_end_dnOutCall(S, K, r, T, sig, H, tau, q):
+    ''' Valuation of partial end European down-and-out barrier call option in BSM model.
+	Analytical formula.
+
+	C. H. Hui, Time-Dependent Barrier Option Values, Journal of Futures Markets, 17(6), 776-688 (1997)
+	implemented by L. Wang
+
+	Tested.
+
+	Parameters
+	==========
+	S0 : float
+		initial stock/index level
+	K : float
+		strike price
+	T : float
+		maturity data (in year fractions)
+	r : float
+		constant risk-free short rate
+	sigma : float
+		volatility factor in diffusion term
+	Sb : float
+		barrirer level
+	tau : float
+	    barrier starting time
+
+	Returns
+	=======
+	value : float
+		present value of the Barrier option
+
+	'''
+    from math import log, sqrt, exp
+    
+    a = lambda t: (log(S/K) + (r-q)*t) / (sig*sqrt(t)) - sig*sqrt(t)/2.
+    a1 = lambda t: (log(S/K) + (r-q)*t) / (sig*sqrt(t)) + sig*sqrt(t)/2.
+
+    b = lambda t: (log(S/H) + (r-q)*t) / (sig*sqrt(t)) - sig*sqrt(t)/2.
+    b1 = lambda t: (log(S/H) + (r-q)*t) / (sig*sqrt(t)) + sig*sqrt(t)/2.
+
+    c = lambda t: (log(H/S) + (r-q)*t) / (sig*sqrt(t)) - sig*sqrt(t)/2.
+    c1 = lambda t: (log(H/S) + (r-q)*t) / (sig*sqrt(t)) + sig*sqrt(t)/2.
+
+    d = lambda t: (log(H**2./(S*K)) + (r-q)*t) / (sig*sqrt(t)) - sig*sqrt(t)/2.
+    d1 = lambda t: (log(H**2./(S*K)) + (r-q)*t) / (sig*sqrt(t)) + sig*sqrt(t)/2.
+
+    rho = sqrt(tau/T)
+    k1 = 2.*(r-q)/(sig**2.)
+
+    C2do = S*exp(-q*T) * bivnormcdf(b1(tau),a1(T),rho) - K*exp(-r*T) * bivnormcdf(b(tau),a(T),rho) \
+    	   - (H/S)**(k1+1.) * S * exp(-q*T) * bivnormcdf(-c1(tau),d1(T),-rho) \
+    	   + (H/S)**(k1-1.) * K * exp(-r*T) * bivnormcdf(-c(tau),d(T),-rho)
+
+    return C2do
+
 ##########################################################################################
 # Option priceing: Monte Carlo
 ##########################################################################################
@@ -432,6 +532,57 @@ def dnOutPut_mcs(S0, K, r, T, sigma, Sb, M=50, I=10000):
 			Y[i+1] = Y[i] + multi_a + multi_b * sn
 		if np.amin(Y) > np.log(Sb):
 			value[j] = np.maximum(K - np.exp(Y[-1]), 0)
+		else:
+			value[j] = 0.
+	value = np.exp(-r * T) * np.mean(value)
+	return value
+
+def dnOutCall_mcs(S0, K, r, T, sigma, Sb, M=50, I=10000):
+	''' Valuation of European down-and-out barrier call option in BSM model.
+	Monte Carlo simulations.
+
+	by L. Wang
+
+	Tested: has hitting error, resulting a bias making the option price higher than true price.
+
+	Parameters
+	==========
+	S0 : float
+		initial stock/index level
+	K : float
+		strike price
+	T : float
+		maturity data (in year fractions)
+	r : float
+		constant risk-free short rate
+	sigma : float
+		volatility factor in diffusion term
+	Sb : float
+		barrirer level
+	M : int
+	    number of time steps
+	I : int
+	    number of Monte Carlo iterations
+
+	Returns
+	=======
+	value : float
+		present value of the Barrier option
+
+	'''
+
+	# assert type(S0) is float and type(Sb) is float and type(K) is float and type(r) is float and type(T) is float and type(sigma) is float, "Unrecongnized input, check type"
+
+	dt = T / float(M)
+	Y = np.zeros(M+1); Y[:] = np.log(S0)
+	multi_a = (r - 0.5 * sigma ** 2) * dt; multi_b = sigma * np.sqrt(dt)
+	value = np.zeros(I)
+	for j in range(0, I):
+		for i in range(0, M):
+			sn = npr.standard_normal()
+			Y[i+1] = Y[i] + multi_a + multi_b * sn
+		if np.amin(Y) > np.log(Sb):
+			value[j] = np.maximum(np.exp(Y[-1]) - K, 0)
 		else:
 			value[j] = 0.
 	value = np.exp(-r * T) * np.mean(value)
@@ -491,6 +642,65 @@ def dnOutPut_nmcs(S0, K, r, T, sigma, Sb, M=50, I=10000):
 				flag = True
 		if np.amin(S) > Sb and flag == False:
 			value[j] = np.maximum(K - S[-1], 0)
+		else:
+			value[j] = 0.
+
+	value = np.exp(-r * T) * np.mean(value)
+	return value
+
+def dnOutCall_nmcs(S0, K, r, T, sigma, Sb, M=100, I=1000):
+	''' Valuation of European down-and-out barrier put option in BSM model.
+	New Monte Carlo simulations.
+
+	from CS676 Asst 1, Winter 2015
+	by L. Wang
+
+	Tested: using Brownian bidge to compute the hitting probability. Lower bias is achieved.
+
+	Parameters
+	==========
+	S0 : float
+		initial stock/index level
+	K : float
+		strike price
+	T : float
+		maturity data (in year fractions)
+	r : float
+		constant risk-free short rate
+	sigma : float
+		volatility factor in diffusion term
+	Sb : float
+		barrirer level
+	M : int
+	    number of time steps
+	I : int
+	    number of Monte Carlo iterations
+
+	Returns
+	=======
+	value : float
+		present value of the Barrier option
+
+	'''
+	# assert type(S0) is float and type(Sb) is float and type(K) is float and type(r) is float and type(T) is float and type(sigma) is float, "Unrecongnized input, check type"
+
+	dt = T / float(M)
+	S = np.zeros(M+1); S[:] = S0
+	P = np.zeros(M)
+	multi_a = (r - 0.5 * sigma ** 2.) * dt; multi_b = sigma * np.sqrt(dt)
+	value = np.zeros(I)
+	for j in range(I):
+		flag = False     # Brownin bridge prob hitting flag
+		for i in range(M):
+			sn = npr.standard_normal()
+			S[i+1] = S[i] * np.exp(multi_a + multi_b * sn)
+			#P[i] = -2. * (Sb-S[i]) * (Sb-S[i+1]) / ( S[i]**2. * multi_b**2. )
+			P[i] = np.exp( -2. * (Sb-S[i]) * (Sb-S[i+1]) / ( S[i]**2. * multi_b**2. ) )
+			#print P[i]
+			if P[i] >= npr.uniform():
+				flag = True
+		if np.amin(S) > Sb and flag == False:
+			value[j] = np.maximum(S[-1] - K, 0)
 		else:
 			value[j] = 0.
 
@@ -558,6 +768,59 @@ def partial_end_dnOutPut_mcs(S0, K, r, T, sigma, Sb, tau, M=1000, I=10000):
 	value = np.exp(-r * T) * np.mean(value)
 	return value
 
+def partial_end_dnOutCall_mcs(S0, K, r, T, sigma, Sb, tau, M=1000, I=10000):
+	''' Valuation of partial end European down-and-out barrier call option in BSM model.
+	Monte Carlo simulations.
+
+	implemented by L. Wang
+
+	Tested.
+
+	Parameters
+	==========
+	S0 : float
+		initial stock/index level
+	K : float
+		strike price
+	T : float
+		maturity data (in year fractions)
+	r : float
+		constant risk-free short rate
+	sigma : float
+		volatility factor in diffusion term
+	Sb : float
+		barrirer level
+	tau : float
+	    barrier starting time
+	M : int
+	    number of time steps
+	I : int
+	    number of Monte Carlo iterations
+
+	Returns
+	=======
+	value : float
+		present value of the Barrier option
+
+	'''
+
+	import math
+	# assert type(S0) is float and type(Sb) is float and type(K) is float and type(r) is float and type(T) is float and type(sigma) is float, "Unrecongnized input, check type"
+
+	dt = T / float(M)
+	tau_idx = math.ceil(tau*float(M)/T)
+	Y = np.zeros(M+1); Y[:] = np.log(S0)
+	multi_a = (r - 0.5 * sigma ** 2) * dt; multi_b = sigma * np.sqrt(dt)
+	value = np.zeros(I)
+	for j in range(0, I):
+		for i in range(0, M):
+			sn = npr.standard_normal()
+			Y[i+1] = Y[i] + multi_a + multi_b * sn
+		if np.amin(Y[tau_idx:]) > np.log(Sb):
+			value[j] = np.maximum(np.exp(Y[-1]) - K, 0)
+	value = np.exp(-r * T) * np.mean(value)
+	return value
+
 
 def partial_end_dnOutPut_nmcs(S0, K, r, T, sigma, Sb, tau, M=1000, I=10000):
 	''' Valuation of partial end European down-and-out barrier put option in BSM model.
@@ -615,6 +878,68 @@ def partial_end_dnOutPut_nmcs(S0, K, r, T, sigma, Sb, tau, M=1000, I=10000):
 				flag = True
 		if np.amin(S[tau_idx:]) > Sb and flag == False:
 			value[j] = np.maximum(K - S[-1], 0)
+		else:
+			value[j] = 0.
+
+	value = np.exp(-r * T) * np.mean(value)
+	return value
+
+def partial_end_dnOutCall_nmcs(S0, K, r, T, sigma, Sb, tau, M=1000, I=10000):
+	''' Valuation of partial end European down-and-out barrier call option in BSM model.
+	New Monte Carlo simulations.
+
+	implemented by L. Wang
+
+	Tested. Lower-bias.
+
+	Parameters
+	==========
+	S0 : float
+		initial stock/index level
+	K : float
+		strike price
+	T : float
+		maturity data (in year fractions)
+	r : float
+		constant risk-free short rate
+	sigma : float
+		volatility factor in diffusion term
+	Sb : float
+		barrirer level
+	tau : float
+	    barrier starting time
+	M : int
+	    number of time steps
+	I : int
+	    number of Monte Carlo iterations
+
+	Returns
+	=======
+	value : float
+		present value of the Barrier option
+
+	'''
+	import math
+	# assert type(S0) is float and type(Sb) is float and type(K) is float and type(r) is float and type(T) is float and type(sigma) is float, "Unrecongnized input, check type"
+
+	dt = T / float(M)
+	tau_idx = math.ceil(tau*float(M)/T)
+	S = np.zeros(M+1); S[:] = S0
+	P = np.zeros(M)
+	multi_a = (r - 0.5 * sigma ** 2.) * dt; multi_b = sigma * np.sqrt(dt)
+	value = np.zeros(I)
+	for j in range(I):
+		flag = False     # Brownin bridge prob hitting flag
+		for i in range(M):
+			sn = npr.standard_normal()
+			S[i+1] = S[i] * np.exp(multi_a + multi_b * sn)
+			#P[i] = -2. * (Sb-S[i]) * (Sb-S[i+1]) / ( S[i]**2. * multi_b**2. )
+			P[i] = np.exp( -2. * (Sb-S[i]) * (Sb-S[i+1]) / ( S[i]**2. * multi_b**2. ) )
+			#print P[i]
+			if P[i] >= npr.uniform() and i>= tau_idx:
+				flag = True
+		if np.amin(S[tau_idx:]) > Sb and flag == False:
+			value[j] = np.maximum(S[-1] - K, 0)
 		else:
 			value[j] = 0.
 
