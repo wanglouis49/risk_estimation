@@ -27,7 +27,6 @@ def naivePolyFeature(X,deg,norm=False):
             transMat[:,i*D+1:(i+1)*D+1] = (X/S0)**(i+1)
     return transMat
 
-
 def specifiedFeature(X,deg,norm=False):
     S0 = 100.
     H = np.array([104.5,100.,91.])
@@ -53,6 +52,33 @@ def specifiedFeature(X,deg,norm=False):
             transMat[:,i*D+1:(i+1)*D+1] = (np.maximum(X-H[1],0.)/S0)**(i-3)
         #for i in range(3*deg,4*deg):
             #transMat[:,i*D+1:(i+1)*D+1] = (np.maximum(X-H[2],0.)/S0)**(i-5)
+    return transMat
+
+def specifiedFeatureFull(X,deg,norm=False):
+    S0 = 100.
+    H = np.array([104.5,100.,91.])
+    I = X.shape[0]
+    D = X.shape[1]
+    transMat = np.zeros((I,1+deg*D+3*deg*D))
+    transMat[:,0] = 1.
+    if deg != 0 and norm == False:
+        for i in range(deg):
+            transMat[:,i*D+1:(i+1)*D+1] = X**(i+1)
+        for i in range(deg,2*deg):
+            transMat[:,i*D+1:(i+1)*D+1] = np.maximum(X-H[0],0.)**(i-1)
+        for i in range(2*deg,3*deg):
+            transMat[:,i*D+1:(i+1)*D+1] = np.maximum(X-H[1],0.)**(i-3)
+        for i in range(3*deg,4*deg):
+            transMat[:,i*D+1:(i+1)*D+1] = np.maximum(X-H[2],0.)**(i-5)
+    elif deg != 0 and norm == True:
+        for i in range(deg):
+            transMat[:,i*D+1:(i+1)*D+1] = (X/S0)**(i+1)
+        for i in range(deg,2*deg):
+            transMat[:,i*D+1:(i+1)*D+1] = (np.maximum(X-H[0],0.)/S0)**(i-1)
+        for i in range(2*deg,3*deg):
+            transMat[:,i*D+1:(i+1)*D+1] = (np.maximum(X-H[1],0.)/S0)**(i-3)
+        for i in range(3*deg,4*deg):
+            transMat[:,i*D+1:(i+1)*D+1] = (np.maximum(X-H[2],0.)/S0)**(i-5)
     return transMat
 
 

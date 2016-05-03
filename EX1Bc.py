@@ -202,7 +202,6 @@ class EX1B(object):
 
 		t0 = time.time()  # training
 		phi = cm.naivePolyFeature(self.X,deg=deg,norm=True)
-		#rank = np.linalg.matrix_rank(phi)
 		lr = linear_model.LinearRegression()
 		lr.fit(phi,self.y)
 		t_tr = time.time() - t0
@@ -211,10 +210,9 @@ class EX1B(object):
 		phi_pred = cm.naivePolyFeature(self.X_pred,deg=deg,norm=True)
 		y_lr = lr.predict(phi_pred)
 		t_pr = time.time() - t0
-		t_tt = t_tr + t_pr
 
-		#self.eel_poly_regr = np.mean(np.maximum(self.Value0-self.c-y_lr,0))
-		return np.mean(np.maximum(self.Value0-self.c-y_lr,0))
+		eel = np.mean(np.maximum(self.Value0-self.c-y_lr,0))
+		return (eel, t_tr, t_pr)
 
 	def spec_regr(self):
 		''' Problem-specific basis polynomial Regression
@@ -223,7 +221,6 @@ class EX1B(object):
 
 		t0 = time.time()  # training
 		phi = cm.specifiedFeature(self.X,deg=2,norm=True)
-		#rank = np.linalg.matrix_rank(phi)
 		lr = linear_model.LinearRegression()
 		lr.fit(phi,self.y)
 		t_tr = time.time() - t0
@@ -233,10 +230,27 @@ class EX1B(object):
 		y_lr = lr.predict(phi_pred)
 		t_pr = time.time() - t0
 
-		t_tt = t_tr + t_pr
+		eel = np.mean(np.maximum(self.Value0-self.c-y_lr,0))
+		return (eel, t_tr, t_pr)
 
-		#self.eel_spec_regr = np.mean(np.maximum(self.Value0-self.c-y_lr,0))
-		return np.mean(np.maximum(self.Value0-self.c-y_lr,0))
+	def spec_regr_full(self):
+		''' Problem-specific basis polynomial Regression with full basis set
+		'''
+		from sklearn import linear_model
+
+		t0 = time.time()  # training
+		phi = cm.specifiedFeatureFull(self.X,deg=2,norm=True)
+		lr = linear_model.LinearRegression()
+		lr.fit(phi,self.y)
+		t_tr = time.time() - t0
+
+		t0 = time.time()  # prediction
+		phi_pred = cm.specifiedFeatureFull(self.X_pred,deg=2,norm=True)
+		y_lr = lr.predict(phi_pred)
+		t_pr = time.time() - t0
+
+		eel = np.mean(np.maximum(self.Value0-self.c-y_lr,0))
+		return (eel, t_tr, t_pr)
 
 	def knn(self):
 		''' K nearest neighbors Regression
@@ -256,7 +270,8 @@ class EX1B(object):
 
 		y_knn = knn.fit(self.X/self.S0, self.y).predict(self.X_pred/self.S0)
 
-		return np.mean(np.maximum(self.Value0-self.c-y_knn,0))
+		eel = np.mean(np.maximum(self.Value0-self.c-y_knn,0))
+		return eel
 
 	def svr(self,C=1000.,gamma=1e-2):
 		''' Support Vector Regression
@@ -264,13 +279,18 @@ class EX1B(object):
 		from sklearn.svm import SVR
 
 		# training
+		t0 = time.time()
 		svr = SVR(kernel='rbf', C=C, gamma=gamma)
 		svr.fit(self.X/self.S0, self.y[:,0])
+		t_tr = time.time() - t0
 
 		# predicting
+		t0 = time.time()
 		y_svr = svr.predict(self.X_pred/self.S0)
+		t_pr = time.time() - t0
 
-		return np.mean(np.maximum(self.Value0-self.c-y_svr,0))
+		eel = np.mean(np.maximum(self.Value0-self.c-y_svr,0))
+		return (eel, t_tr, t_pr)
 
 	def svrCV(self):
 		''' Support Vector Regression with Cross-Validation
@@ -279,33 +299,103 @@ class EX1B(object):
 		from sklearn.grid_search import GridSearchCV
 
 		# training
+		t0 = time.time()
 		svr = GridSearchCV(SVR(C=1000.,kernel='rbf',gamma=1e-4), cv=5,
                        param_grid={"C": [100., 1000.],
                                    "gamma": [1e-3,1e-2,1e-1]}, n_jobs=-1)
 		svr.fit(self.X, self.y[:,0])
+		t_tr = time.time() - t0
 
+		# predicting
+		t0 = time.time()
 		y_svr = svr.predict(self.X_pred)
+		t_pr = time.time() - t0
 
-		return np.mean(np.maximum(self.Value0-self.c-y_svr,0))
+		eel = np.mean(np.maximum(self.Value0-self.c-y_svr,0))
+		return (eel, t_tr, t_pr)
 
-def re_poly(kk,N_i,deg=2):
+def re_poly2(kk,N_i):
 	from EX1Bc import EX1B
+	import time
 	if kk/N_i < 1.:
-		eel = np.nan
+		eel = (np.nan, 0., 0., 0.)
 	else:
 		port = EX1B()
+		t0 = time.time()
 		port.regr_data_prep(kk,N_i)
-		eel = port.poly_regr(deg=deg)
+		t_ns = time.time() - t0
+		eel = port.poly_regr(deg=2)
+		eel += (t_ns,)
+	return eel
+
+def re_poly5(kk,N_i):
+	from EX1Bc import EX1B
+	import time
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX1B()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_regr(deg=5)
+		eel += (t_ns,)
+	return eel
+
+def re_poly8(kk,N_i):
+	from EX1Bc import EX1B
+	import time
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX1B()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_regr(deg=8)
+		eel += (t_ns,)
+	return eel
+
+def re_spec(kk,N_i):
+	from EX1Bc import EX1B
+	import time
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX1B()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.spec_regr()
+		eel += (t_ns,)
+	return eel
+
+def re_spec_full(kk,N_i):
+	from EX1Bc import EX1B
+	import time
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX1B()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.spec_regr_full()
+		eel += (t_ns,)
 	return eel
 
 def re_svr(kk,N_i):
 	from EX1Bc import EX1B
+	import time
 	if kk/N_i < 1.:
-		eel = np.nan
+		eel = (np.nan, 0., 0., 0.)
 	else:
 		port = EX1B()
+		t0 = time.time()
 		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
 		eel = port.svr()
+		eel += (t_ns,)
 	return eel
 
 def conv(K,N_i=1,L=1000,regr_method=re_svr,filename='EX1Bc'):
@@ -346,26 +436,47 @@ def conv(K,N_i=1,L=1000,regr_method=re_svr,filename='EX1Bc'):
 	mse = np.zeros(len(K))
 	bias2 = np.zeros(len(K))
 	var = np.zeros(len(K))
-	t = np.zeros(len(K))
+	t_tr = np.zeros(len(K))
+	t_pr = np.zeros(len(K))
+	t_ns = np.zeros(len(K))
 
 	for k_idx, kk in enumerate(K):
 		print "K = %d" % kk
 		t0 = time.time()
 		eel_data = view.map(regr_method,[kk]*L,[N_i]*L)
+		eel = [eel_data[ii][0] for ii in range(L)]
 
-		mse[k_idx] = np.mean((np.array(eel_data)-EEL_true)**2)
-		bias2[k_idx] = (np.mean(eel_data)-EEL_true)**2
-		var[k_idx] = np.mean((np.array(eel_data)-np.mean(eel_data))**2)
-		t[k_idx] = time.time()-t0
+		mse[k_idx] = np.mean((np.array(eel)-EEL_true)**2)
+		bias2[k_idx] = (np.mean(eel)-EEL_true)**2
+		var[k_idx] = np.mean((np.array(eel)-np.mean(eel))**2)
+
+		t_tr[k_idx] = np.mean([eel_data[ii][1] for ii in range(L)])
+		t_pr[k_idx] = np.mean([eel_data[ii][2] for ii in range(L)])
+		t_ns[k_idx] = np.mean([eel_data[ii][3] for ii in range(L)])
+
 		print "%.2fs elapsed" % (time.time()-t0)
-		scipy.io.savemat(filename+'.mat',mdict={'K':K,'N_i':N_i,'L':L,\
-			'mse':mse,'bias2':bias2,'var':var,'t':t})
+		scipy.io.savemat('./Data/EX1B/'+filename+'.mat',mdict={'K':K,'N_i':N_i,'L':L,\
+			'mse':mse,'bias2':bias2,'var':var,'t_tr':t_tr, 't_pr':t_pr,\
+			't_ns':t_ns})
 		print
 
 if __name__ == "__main__":
 	import EX1Bc as EX1
 	K = [ii**5 for ii in range(2,23)]
-	EX1.conv(K, N_i=1, L=1000, regr_method=re_svr, filename='EX1B_svr')
+	EX1.conv(K, N_i=1, L=1000, regr_method=re_poly2, filename='re_poly2_1')
+	EX1.conv(K, N_i=1, L=1000, regr_method=re_poly5, filename='re_poly5_1')
+	EX1.conv(K, N_i=1, L=1000, regr_method=re_poly8, filename='re_poly8_1')
+	EX1.conv(K, N_i=1, L=1000, regr_method=re_spec, filename='re_spec_1')
+	EX1.conv(K, N_i=1, L=1000, regr_method=re_spec_full, filename='re_spec_full_1')
 
+	EX1.conv(K, N_i=10, L=1000, regr_method=re_poly2, filename='re_poly2_10')
+	EX1.conv(K, N_i=10, L=1000, regr_method=re_poly5, filename='re_poly5_10')
+	EX1.conv(K, N_i=10, L=1000, regr_method=re_poly8, filename='re_poly8_10')
+	EX1.conv(K, N_i=10, L=1000, regr_method=re_spec, filename='re_spec_10')
+	EX1.conv(K, N_i=10, L=1000, regr_method=re_spec_full, filename='re_spec_full_10')
 
-
+	EX1.conv(K, N_i=100, L=1000, regr_method=re_poly2, filename='re_poly2_100')
+	EX1.conv(K, N_i=100, L=1000, regr_method=re_poly5, filename='re_poly5_100')
+	EX1.conv(K, N_i=100, L=1000, regr_method=re_poly8, filename='re_poly8_100')
+	EX1.conv(K, N_i=100, L=1000, regr_method=re_spec, filename='re_spec_100')
+	EX1.conv(K, N_i=100, L=1000, regr_method=re_spec_full, filename='re_spec_full_100')
