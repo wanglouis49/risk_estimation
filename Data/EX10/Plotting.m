@@ -16,39 +16,34 @@ mse_poly8=mse;
 bias2_poly8=bias2;
 var_poly8=var;
 t_poly8=t_tr+t_pr;
-load('re_spec_full_1.mat')
-mse_spec=mse;
-bias2_spec=bias2;
-var_spec=var;
-t_spec=t_tr+t_pr;
 
 K_plot = logspace(1,7,7);
 
-figure(1),loglog(K,mse_poly2,K,mse_poly5,K,mse_poly8,K,mse_spec,...
+figure(1),loglog(K,mse_poly2,K,mse_poly5,K,mse_poly8,...
 K_plot,5.5e-2*K_plot.^(-2/3)/K_plot(1)^(-2/3),'k--',K_plot,...
 1.4e-2*K_plot.^(-1)/K_plot(1)^(-1),'k-.')
 xlabel('Total number of inner stage samples k')
 ylabel('MSE')
-axis([10, 1e7, 1e-8, 1])
+axis([10, 1e7, 1e-8, 1e3])
 legend('deg=2','deg=5','deg=8','spec')
 
-figure(2),loglog(K,bias2_poly2,K,bias2_poly5,K,bias2_poly8,K,bias2_spec,...
+figure(2),loglog(K,bias2_poly2,K,bias2_poly5,K,bias2_poly8,...
 K_plot,5.5e-2*K_plot.^(-2/3)/K_plot(1)^(-2/3),'k--',K_plot,...
 1.4e-2*K_plot.^(-1)/K_plot(1)^(-1),'k-.')
 xlabel('Total number of inner stage samples k')
 ylabel('Bias^2')
-axis([10, 1e7, 1e-8, 1])
+axis([10, 1e7, 1e-8, 1e3])
 legend('deg=2','deg=5','deg=8','spec')
 
-figure(3),loglog(K,var_poly2,K,var_poly5,K,var_poly8,K,var_spec,...
+figure(3),loglog(K,var_poly2,K,var_poly5,K,var_poly8,...
 K_plot,5.5e-2*K_plot.^(-2/3)/K_plot(1)^(-2/3),'k--',K_plot,...
 1.4e-2*K_plot.^(-1)/K_plot(1)^(-1),'k-.')
 xlabel('Total number of inner stage samples k')
 ylabel('Variance')
-axis([10, 1e7, 1e-8, 1])
+axis([10, 1e7, 1e-8, 1e3])
 legend('deg=2','deg=5','deg=8','spec')
 
-figure(4),loglog(K,t_poly2,K,t_poly5,K,t_poly8,K,t_spec)
+figure(4),loglog(K,t_poly2,K,t_poly5,K,t_poly8)
 xlabel('Total number of inner stage samples k')
 ylabel('time (s)')
 legend('deg=2','deg=5','deg=8','spec')
@@ -70,39 +65,34 @@ mse_poly8=mse;
 bias2_poly8=bias2;
 var_poly8=var;
 t_poly8=t_tr+t_pr;
-load('re_spec_full_10.mat')
-mse_spec=mse;
-bias2_spec=bias2;
-var_spec=var;
-t_spec=t_tr+t_pr;
 
 K_plot = logspace(1,7,7);
 
-figure(1),loglog(K,mse_poly2,K,mse_poly5,K,mse_poly8,K,mse_spec,...
+figure(1),loglog(K,mse_poly2,K,mse_poly5,K,mse_poly8,...
 K_plot,5.5e-2*K_plot.^(-2/3)/K_plot(1)^(-2/3),'k--',K_plot,...
 1.4e-2*K_plot.^(-1)/K_plot(1)^(-1),'k-.')
 xlabel('Total number of inner stage samples k')
 ylabel('MSE')
-axis([10, 1e7, 1e-8, 1])
+axis([10, 1e7, 1e-8, 1e3])
 legend('deg=2','deg=5','deg=8','spec')
 
-figure(2),loglog(K,bias2_poly2,K,bias2_poly5,K,bias2_poly8,K,bias2_spec,...
+figure(2),loglog(K,bias2_poly2,K,bias2_poly5,K,bias2_poly8,...
 K_plot,5.5e-2*K_plot.^(-2/3)/K_plot(1)^(-2/3),'k--',K_plot,...
 1.4e-2*K_plot.^(-1)/K_plot(1)^(-1),'k-.')
 xlabel('Total number of inner stage samples k')
 ylabel('Bias^2')
-axis([10, 1e7, 1e-8, 1])
+axis([10, 1e7, 1e-8, 1e3])
 legend('deg=2','deg=5','deg=8','spec')
 
-figure(3),loglog(K,var_poly2,K,var_poly5,K,var_poly8,K,var_spec,...
+figure(3),loglog(K,var_poly2,K,var_poly5,K,var_poly8,...
 K_plot,5.5e-2*K_plot.^(-2/3)/K_plot(1)^(-2/3),'k--',K_plot,...
 1.4e-2*K_plot.^(-1)/K_plot(1)^(-1),'k-.')
 xlabel('Total number of inner stage samples k')
 ylabel('Variance')
-axis([10, 1e7, 1e-8, 1])
+axis([10, 1e7, 1e-8, 1e3])
 legend('deg=2','deg=5','deg=8','spec')
 
-figure(4),loglog(K,t_poly2,K,t_poly5,K,t_poly8,K,t_spec)
+figure(4),loglog(K,t_poly2,K,t_poly5,K,t_poly8)
 xlabel('Total number of inner stage samples k')
 ylabel('time (s)')
 legend('deg=2','deg=5','deg=8','spec')
@@ -124,39 +114,34 @@ mse_poly8=mse;
 bias2_poly8=bias2;
 var_poly8=var;
 t_poly8=t_tr+t_pr;
-load('re_spec_100.mat')
-mse_spec=mse;
-bias2_spec=bias2;
-var_spec=var;
-t_spec=t_tr+t_pr;
 
 K_plot = logspace(1,7,7);
 
-figure(1),loglog(K,mse_poly2,K,mse_poly5,K,mse_poly8,K,mse_spec,...
+figure(1),loglog(K,mse_poly2,K,mse_poly5,K,mse_poly8,...
 K_plot,5.5e-2*K_plot.^(-2/3)/K_plot(1)^(-2/3),'k--',K_plot,...
 1.4e-2*K_plot.^(-1)/K_plot(1)^(-1),'k-.')
 xlabel('Total number of inner stage samples k')
 ylabel('MSE')
-axis([10, 1e7, 1e-8, 1])
+axis([10, 1e7, 1e-8, 1e3])
 legend('deg=2','deg=5','deg=8','spec')
 
-figure(2),loglog(K,bias2_poly2,K,bias2_poly5,K,bias2_poly8,K,bias2_spec,...
+figure(2),loglog(K,bias2_poly2,K,bias2_poly5,K,bias2_poly8,...
 K_plot,5.5e-2*K_plot.^(-2/3)/K_plot(1)^(-2/3),'k--',K_plot,...
 1.4e-2*K_plot.^(-1)/K_plot(1)^(-1),'k-.')
 xlabel('Total number of inner stage samples k')
 ylabel('Bias^2')
-axis([10, 1e7, 1e-8, 1])
+axis([10, 1e7, 1e-8, 1e3])
 legend('deg=2','deg=5','deg=8','spec')
 
-figure(3),loglog(K,var_poly2,K,var_poly5,K,var_poly8,K,var_spec,...
+figure(3),loglog(K,var_poly2,K,var_poly5,K,var_poly8,...
 K_plot,5.5e-2*K_plot.^(-2/3)/K_plot(1)^(-2/3),'k--',K_plot,...
 1.4e-2*K_plot.^(-1)/K_plot(1)^(-1),'k-.')
 xlabel('Total number of inner stage samples k')
 ylabel('Variance')
-axis([10, 1e7, 1e-8, 1])
+axis([10, 1e7, 1e-8, 1e3])
 legend('deg=2','deg=5','deg=8','spec')
 
-figure(4),loglog(K,t_poly2,K,t_poly5,K,t_poly8,K,t_spec)
+figure(4),loglog(K,t_poly2,K,t_poly5,K,t_poly8)
 xlabel('Total number of inner stage samples k')
 ylabel('time (s)')
 legend('deg=2','deg=5','deg=8','spec')

@@ -219,14 +219,14 @@ class EX1B(object):
 		'''
 		# Training
 		t0 = time.time()
-		phi = cm.specifiedFeature(self.X,deg=deg,norm=True)
+		phi = cm.specifiedFeature(self.X,deg=2,norm=True)
 		U, s, V = np.linalg.svd(phi,full_matrices=False)
 		r = np.dot(V.T,np.dot(U.T,self.y)/s[:,np.newaxis])
 		t_tr = time.time() - t0
 
 		# Predicting
 		t0 = time.time()
-		phi_pred = cm.specifiedFeature(self.X_pred,deg=deg,norm=True)
+		phi_pred = cm.specifiedFeature(self.X_pred,deg=2,norm=True)
 		y_lr = np.dot(phi_pred,r)
 		t_pr = time.time() - t0
 
@@ -238,14 +238,14 @@ class EX1B(object):
 		'''
 		# Training
 		t0 = time.time()
-		phi = cm.specifiedFeatureFull(self.X,deg=deg,norm=True)
+		phi = cm.specifiedFeatureFull(self.X,deg=2,norm=True)
 		U, s, V = np.linalg.svd(phi,full_matrices=False)
 		r = np.dot(V.T,np.dot(U.T,self.y)/s[:,np.newaxis])
 		t_tr = time.time() - t0
 
 		# Predicting
 		t0 = time.time()
-		phi_pred = cm.specifiedFeatureFull(self.X_pred,deg=deg,norm=True)
+		phi_pred = cm.specifiedFeatureFull(self.X_pred,deg=2,norm=True)
 		y_lr = np.dot(phi_pred,r)
 		t_pr = time.time() - t0
 
