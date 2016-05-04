@@ -282,6 +282,4 @@ def conv(K,N_i=1,L=100,regr_method=re_poly2,filename='EX10'):
 if __name__ == "__main__":
 	import EX10
 	K = [ii**5 for ii in range(2,23)]
-	EX10.conv(K,N_i=1,L=100,regr_method=re_poly2,filename='re_poly2_1')
-	EX10.conv(K,N_i=1,L=100,regr_method=re_poly5,filename='re_poly5_1')
 	EX10.conv(K,N_i=1,L=100,regr_method=re_poly8,filename='re_poly8_1')
