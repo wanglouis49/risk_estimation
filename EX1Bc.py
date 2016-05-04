@@ -198,58 +198,58 @@ class EX1B(object):
 	def poly_regr(self,deg=2):
 		''' Polynomial linear Regression
 		'''
-		from sklearn import linear_model
-
-		t0 = time.time()  # training
+		# Training
+		t0 = time.time()
 		phi = cm.naivePolyFeature(self.X,deg=deg,norm=True)
-		lr = linear_model.LinearRegression()
-		lr.fit(phi,self.y)
+		U, s, V = np.linalg.svd(phi,full_matrices=False)
+		r = np.dot(V.T,np.dot(U.T,self.y)/s[:,np.newaxis])
 		t_tr = time.time() - t0
 
-		t0 = time.time()  # prediction
+		# Predicting
+		t0 = time.time()
 		phi_pred = cm.naivePolyFeature(self.X_pred,deg=deg,norm=True)
-		y_lr = lr.predict(phi_pred)
+		y_lr = np.dot(phi_pred,r)
 		t_pr = time.time() - t0
 
-		eel = np.mean(np.maximum(self.Value0-self.c-y_lr,0))
+		eel = np.mean(np.maximum(self.Value0-self.c-np.sum(y_lr,axis=1),0))
 		return (eel, t_tr, t_pr)
 
 	def spec_regr(self):
 		''' Problem-specific basis polynomial Regression
 		'''
-		from sklearn import linear_model
-
-		t0 = time.time()  # training
-		phi = cm.specifiedFeature(self.X,deg=2,norm=True)
-		lr = linear_model.LinearRegression()
-		lr.fit(phi,self.y)
+		# Training
+		t0 = time.time()
+		phi = cm.specifiedFeature(self.X,deg=deg,norm=True)
+		U, s, V = np.linalg.svd(phi,full_matrices=False)
+		r = np.dot(V.T,np.dot(U.T,self.y)/s[:,np.newaxis])
 		t_tr = time.time() - t0
 
-		t0 = time.time()  # prediction
-		phi_pred = cm.specifiedFeature(self.X_pred,deg=2,norm=True)
-		y_lr = lr.predict(phi_pred)
+		# Predicting
+		t0 = time.time()
+		phi_pred = cm.specifiedFeature(self.X_pred,deg=deg,norm=True)
+		y_lr = np.dot(phi_pred,r)
 		t_pr = time.time() - t0
 
-		eel = np.mean(np.maximum(self.Value0-self.c-y_lr,0))
+		eel = np.mean(np.maximum(self.Value0-self.c-np.sum(y_lr,axis=1),0))
 		return (eel, t_tr, t_pr)
 
 	def spec_regr_full(self):
 		''' Problem-specific basis polynomial Regression with full basis set
 		'''
-		from sklearn import linear_model
-
-		t0 = time.time()  # training
-		phi = cm.specifiedFeatureFull(self.X,deg=2,norm=True)
-		lr = linear_model.LinearRegression()
-		lr.fit(phi,self.y)
+		# Training
+		t0 = time.time()
+		phi = cm.specifiedFeatureFull(self.X,deg=deg,norm=True)
+		U, s, V = np.linalg.svd(phi,full_matrices=False)
+		r = np.dot(V.T,np.dot(U.T,self.y)/s[:,np.newaxis])
 		t_tr = time.time() - t0
 
-		t0 = time.time()  # prediction
-		phi_pred = cm.specifiedFeatureFull(self.X_pred,deg=2,norm=True)
-		y_lr = lr.predict(phi_pred)
+		# Predicting
+		t0 = time.time()
+		phi_pred = cm.specifiedFeatureFull(self.X_pred,deg=deg,norm=True)
+		y_lr = np.dot(phi_pred,r)
 		t_pr = time.time() - t0
 
-		eel = np.mean(np.maximum(self.Value0-self.c-y_lr,0))
+		eel = np.mean(np.maximum(self.Value0-self.c-np.sum(y_lr,axis=1),0))
 		return (eel, t_tr, t_pr)
 
 	def knn(self):
@@ -468,15 +468,3 @@ if __name__ == "__main__":
 	EX1.conv(K, N_i=1, L=1000, regr_method=re_poly8, filename='re_poly8_1')
 	EX1.conv(K, N_i=1, L=1000, regr_method=re_spec, filename='re_spec_1')
 	EX1.conv(K, N_i=1, L=1000, regr_method=re_spec_full, filename='re_spec_full_1')
-
-	EX1.conv(K, N_i=10, L=1000, regr_method=re_poly2, filename='re_poly2_10')
-	EX1.conv(K, N_i=10, L=1000, regr_method=re_poly5, filename='re_poly5_10')
-	EX1.conv(K, N_i=10, L=1000, regr_method=re_poly8, filename='re_poly8_10')
-	EX1.conv(K, N_i=10, L=1000, regr_method=re_spec, filename='re_spec_10')
-	EX1.conv(K, N_i=10, L=1000, regr_method=re_spec_full, filename='re_spec_full_10')
-
-	EX1.conv(K, N_i=100, L=1000, regr_method=re_poly2, filename='re_poly2_100')
-	EX1.conv(K, N_i=100, L=1000, regr_method=re_poly5, filename='re_poly5_100')
-	EX1.conv(K, N_i=100, L=1000, regr_method=re_poly8, filename='re_poly8_100')
-	EX1.conv(K, N_i=100, L=1000, regr_method=re_spec, filename='re_spec_100')
-	EX1.conv(K, N_i=100, L=1000, regr_method=re_spec_full, filename='re_spec_full_100')
