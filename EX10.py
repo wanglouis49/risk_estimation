@@ -169,6 +169,27 @@ class EX10(object):
 		eel = np.mean(np.maximum(self.Value0-self.c-np.sum(y_lr,axis=1),0))
 		return (eel, t_tr, t_pr)
 
+	def poly_ridge(self,deg=2):
+		''' Polynomial Ridge Regression
+		'''
+		from sklearn import linear_model
+		# Training
+		t0 = time.time()
+		phi = cm.naivePolyFeature(self.X,deg=deg,norm=True)
+		lm = linear_model.RidgeCV(alphas=[1e-6,1e-5,1e-4,1e-3,1e-2,1e-1,1.])
+		lm.fit(phi,self.y)
+		print lm.alpha_
+		t_tr = time.time() - t0
+
+		# Predicting
+		t0 = time.time()
+		phi_pred = cm.naivePolyFeature(self.X_pred,deg=deg,norm=True)
+		y_lr = lm.predict(phi_pred)
+		t_pr = time.time() - t0
+
+		eel = np.mean(np.maximum(self.Value0-self.c-np.sum(y_lr,axis=1),0))
+		return (eel, t_tr, t_pr)
+
 	def spec_regr(self,deg=5):
 		pass
 
@@ -214,6 +235,48 @@ def re_poly8(kk,N_i):
 		port.regr_data_prep(kk,N_i)
 		t_ns = time.time() - t0
 		eel = port.poly_regr(deg=8)
+		eel += (t_ns,)
+	return eel
+
+def re_ridge2(kk,N_i):
+	from EX10 import EX10
+	import time
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX10()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_ridge(deg=2)
+		eel += (t_ns,)
+	return eel
+
+def re_ridge5(kk,N_i):
+	from EX10 import EX10
+	import time
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX10()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_ridge(deg=5)
+		eel += (t_ns,)
+	return eel
+
+def re_ridge8(kk,N_i):
+	from EX10 import EX10
+	import time
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX10()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_ridge(deg=8)
 		eel += (t_ns,)
 	return eel
 
@@ -282,4 +345,6 @@ def conv(K,N_i=1,L=100,regr_method=re_poly2,filename='EX10'):
 if __name__ == "__main__":
 	import EX10
 	K = [ii**5 for ii in range(2,23)]
-	EX10.conv(K,N_i=1,L=100,regr_method=re_poly8,filename='re_poly8_1')
+	EX10.conv(K,N_i=1,L=100,regr_method=re_ridge2,filename='re_ridge2_1')
+	EX10.conv(K,N_i=1,L=100,regr_method=re_ridge5,filename='re_ridge5_1')
+	EX10.conv(K,N_i=1,L=100,regr_method=re_ridge8,filename='re_ridge8_1')
