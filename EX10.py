@@ -199,6 +199,7 @@ def re_ns(kk):
 def re_poly2(kk,N_i):
 	from EX10 import EX10
 	import time
+	import numpy as np
 	if kk/N_i < 1.:
 		eel = (np.nan, 0., 0., 0.)
 	else:
@@ -213,6 +214,7 @@ def re_poly2(kk,N_i):
 def re_poly5(kk,N_i):
 	from EX10 import EX10
 	import time
+	import numpy as np
 	if kk/N_i < 1.:
 		eel = (np.nan, 0., 0., 0.)
 	else:
@@ -227,6 +229,7 @@ def re_poly5(kk,N_i):
 def re_poly8(kk,N_i):
 	from EX10 import EX10
 	import time
+	import numpy as np
 	if kk/N_i < 1.:
 		eel = (np.nan, 0., 0., 0.)
 	else:
@@ -238,9 +241,40 @@ def re_poly8(kk,N_i):
 		eel += (t_ns,)
 	return eel
 
+def re_poly10(kk,N_i):
+	from EX10 import EX10
+	import time
+	import numpy as np
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX10()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_regr(deg=10)
+		eel += (t_ns,)
+	return eel
+
+def re_poly15(kk,N_i):
+	from EX10 import EX10
+	import time
+	import numpy as np
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX10()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_regr(deg=15)
+		eel += (t_ns,)
+	return eel
+
 def re_ridge2(kk,N_i):
 	from EX10 import EX10
 	import time
+	import numpy as np
 	if kk/N_i < 1.:
 		eel = (np.nan, 0., 0., 0.)
 	else:
@@ -255,6 +289,7 @@ def re_ridge2(kk,N_i):
 def re_ridge5(kk,N_i):
 	from EX10 import EX10
 	import time
+	import numpy as np
 	if kk/N_i < 1.:
 		eel = (np.nan, 0., 0., 0.)
 	else:
@@ -269,6 +304,7 @@ def re_ridge5(kk,N_i):
 def re_ridge8(kk,N_i):
 	from EX10 import EX10
 	import time
+	import numpy as np
 	if kk/N_i < 1.:
 		eel = (np.nan, 0., 0., 0.)
 	else:
@@ -277,6 +313,36 @@ def re_ridge8(kk,N_i):
 		port.regr_data_prep(kk,N_i)
 		t_ns = time.time() - t0
 		eel = port.poly_ridge(deg=8)
+		eel += (t_ns,)
+	return eel
+
+def re_ridge10(kk,N_i):
+	from EX10 import EX10
+	import time
+	import numpy as np
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX10()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_ridge(deg=10)
+		eel += (t_ns,)
+	return eel
+
+def re_ridge15(kk,N_i):
+	from EX10 import EX10
+	import time
+	import numpy as np
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX10()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_ridge(deg=15)
 		eel += (t_ns,)
 	return eel
 
@@ -345,6 +411,7 @@ def conv(K,N_i=1,L=100,regr_method=re_poly2,filename='EX10'):
 if __name__ == "__main__":
 	import EX10
 	K = [ii**5 for ii in range(2,23)]
-	EX10.conv(K,N_i=1,L=100,regr_method=re_ridge2,filename='re_ridge2_1')
-	EX10.conv(K,N_i=1,L=100,regr_method=re_ridge5,filename='re_ridge5_1')
-	EX10.conv(K,N_i=1,L=100,regr_method=re_ridge8,filename='re_ridge8_1')
+	EX10.conv(K,N_i=1,L=100,regr_method=re_poly10,filename='re_poly10_1')
+	EX10.conv(K,N_i=1,L=100,regr_method=re_poly15,filename='re_poly15_1')
+	EX10.conv(K,N_i=1,L=100,regr_method=re_ridge10,filename='re_ridge10_1')
+	EX10.conv(K,N_i=1,L=100,regr_method=re_ridge15,filename='re_ridge15_1')
