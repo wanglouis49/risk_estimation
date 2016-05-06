@@ -107,6 +107,7 @@ class EX10(object):
 	def regr_data_prep(self,kk,N_i=1):
 		''' Regression data preparation via nested simulations
 		'''
+		import scipy.io
 		# --- Computation budget allocation ---
 		N_o = int(kk/N_i)
 
@@ -139,7 +140,10 @@ class EX10(object):
 			ValueTau[:] += -10. * C2do - 5. * P2
 		t_ns = time.time() - t0
 
-		ran3 = norm(loc=0,scale=1).ppf(lhs(self.D,samples=self.I_pred))
+		#ran3 = norm(loc=0,scale=1).ppf(lhs(self.D,samples=self.I_pred))
+		mat = scipy.io.loadmat('sobol_100_32768.mat')
+		ran3_uniform = mat['sobol_100_32768']
+		ran3 = scs.norm.ppf(ran3_uniform[:,90:])
 		S_pred = np.zeros((self.I_pred,self.D))
 		S_pred[:,:] = self.S0
 		S_pred[:,:] = S_pred[:,:] * np.exp((self.mu - 0.5*self.sigma*self.sigma)*self.tau + self.sigma *\
@@ -411,7 +415,9 @@ def conv(K,N_i=1,L=100,regr_method=re_poly2,filename='EX10'):
 if __name__ == "__main__":
 	import EX10
 	K = [ii**5 for ii in range(2,23)]
-	EX10.conv(K,N_i=1,L=100,regr_method=re_poly10,filename='re_poly10_1')
-	EX10.conv(K,N_i=1,L=100,regr_method=re_poly15,filename='re_poly15_1')
-	EX10.conv(K,N_i=1,L=100,regr_method=re_ridge10,filename='re_ridge10_1')
-	EX10.conv(K,N_i=1,L=100,regr_method=re_ridge15,filename='re_ridge15_1')
+	EX10.conv(K,N_i=10,L=100,regr_method=re_poly2,filename='re_poly2_10_qmc')
+	EX10.conv(K,N_i=10,L=100,regr_method=re_poly8,filename='re_poly8_10_qmc')
+	EX10.conv(K,N_i=10,L=100,regr_method=re_poly15,filename='re_poly15_10_qmc')
+	#EX10.conv(K,N_i=10,L=100,regr_method=re_ridge2,filename='re_ridge2_10_qmc')
+	#EX10.conv(K,N_i=10,L=100,regr_method=re_ridge8,filename='re_ridge8_10_qmc')
+	#EX10.conv(K,N_i=10,L=100,regr_method=re_ridge15,filename='re_ridge15_10_qmc')
