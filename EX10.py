@@ -180,7 +180,7 @@ class EX10(object):
 		# Training
 		t0 = time.time()
 		phi = cm.naivePolyFeature(self.X,deg=deg,norm=True)
-		lm = linear_model.RidgeCV(alphas=[1e-6,1e-5,1e-4,1e-3,1e-2,1e-1,1.])
+		lm = linear_model.RidgeCV(alphas=np.logspace(-4,0,5))
 		lm.fit(phi,self.y)
 		print lm.alpha_
 		t_tr = time.time() - t0
@@ -415,9 +415,6 @@ def conv(K,N_i=1,L=100,regr_method=re_poly2,filename='EX10'):
 if __name__ == "__main__":
 	import EX10
 	K = [ii**5 for ii in range(2,23)]
-	EX10.conv(K,N_i=10,L=100,regr_method=re_poly2,filename='re_poly2_10_qmc')
 	EX10.conv(K,N_i=10,L=100,regr_method=re_poly8,filename='re_poly8_10_qmc')
-	EX10.conv(K,N_i=10,L=100,regr_method=re_poly15,filename='re_poly15_10_qmc')
-	#EX10.conv(K,N_i=10,L=100,regr_method=re_ridge2,filename='re_ridge2_10_qmc')
-	#EX10.conv(K,N_i=10,L=100,regr_method=re_ridge8,filename='re_ridge8_10_qmc')
-	#EX10.conv(K,N_i=10,L=100,regr_method=re_ridge15,filename='re_ridge15_10_qmc')
+	EX10.conv(K,N_i=1,L=100,regr_method=re_poly15,filename='re_poly15_1_qmc')
+	EX10.conv(K,N_i=10,L=100,regr_method=re_ridge15,filename='re_ridge15_10_qmc')
