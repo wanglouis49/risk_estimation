@@ -195,6 +195,47 @@ class EX10(object):
 	def spec_regr(self,deg=5):
 		pass
 
+	def svr(self,C=1000.,gamma=1e-2):
+		''' Support Vector Regression
+		'''
+		from sklearn.svm import SVR
+
+		# training
+		t0 = time.time()
+		svr = SVR(kernel='rbf', C=C, gamma=gamma)
+		svr.fit(self.X/self.S0, self.y[:,0])
+		t_tr = time.time() - t0
+
+		# predicting
+		t0 = time.time()
+		y_svr = svr.predict(self.X_pred/self.S0)
+		t_pr = time.time() - t0
+
+		eel = np.mean(np.maximum(self.Value0-self.c-y_svr,0))
+		return (eel, t_tr, t_pr)
+
+	def svrCV(self):
+		''' Support Vector Regression with Cross-Validation
+		'''
+		from sklearn.svm import SVR
+		from sklearn.grid_search import GridSearchCV
+
+		# training
+		t0 = time.time()
+		svr = GridSearchCV(SVR(C=1000.,kernel='rbf',gamma=1e-4), cv=5,
+                       param_grid={"C": [100., 1000.],
+                                   "gamma": [1e-3,1e-2,1e-1]}, n_jobs=-1)
+		svr.fit(self.X, self.y[:,0])
+		t_tr = time.time() - t0
+
+		# predicting
+		t0 = time.time()
+		y_svr = svr.predict(self.X_pred)
+		t_pr = time.time() - t0
+
+		eel = np.mean(np.maximum(self.Value0-self.c-y_svr,0))
+		return (eel, t_tr, t_pr)
+
 def re_ns(kk):
 	pass
 
