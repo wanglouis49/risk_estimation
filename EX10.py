@@ -389,6 +389,21 @@ def re_ridge15(kk,N_i):
 		eel += (t_ns,)
 	return eel
 
+def re_svr(kk,N_i):
+	from EX10 import EX10
+	import time
+	import numpy as np
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX10()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.svrCV()
+		eel += (t_ns,)
+	return eel
+
 def conv(K,N_i=1,L=100,regr_method=re_poly2,filename='EX10'):
 	import scipy.io
 	import ipyparallel
