@@ -6,7 +6,6 @@ import blspricer as bp
 import customML as cm
 import scipy.stats as scs
 from scipy.stats.distributions import norm
-from doe_lhs import lhs
 
 class EX1B(object):
 	def __init__(self):
@@ -252,6 +251,27 @@ class EX1B(object):
 		eel = np.mean(np.maximum(self.Value0-self.c-np.sum(y_lr,axis=1),0))
 		return (eel, t_tr, t_pr)
 
+	def poly_ridge(self,deg=2):
+		''' Polynomial Ridge Regression
+		'''
+		from sklearn import linear_model
+		# Training
+		t0 = time.time()
+		phi = cm.naivePolyFeature(self.X,deg=deg,norm=True)
+		lm = linear_model.RidgeCV(alphas=np.logspace(-10,-1,10))
+		lm.fit(phi,self.y)
+		print lm.alpha_
+		t_tr = time.time() - t0
+
+		# Predicting
+		t0 = time.time()
+		phi_pred = cm.naivePolyFeature(self.X_pred,deg=deg,norm=True)
+		y_lr = lm.predict(phi_pred)
+		t_pr = time.time() - t0
+
+		eel = np.mean(np.maximum(self.Value0-self.c-np.sum(y_lr,axis=1),0))
+		return (eel, t_tr, t_pr)
+
 	def knn(self):
 		''' K nearest neighbors Regression
 		'''
@@ -353,6 +373,48 @@ def re_poly8(kk,N_i):
 		port.regr_data_prep(kk,N_i)
 		t_ns = time.time() - t0
 		eel = port.poly_regr(deg=8)
+		eel += (t_ns,)
+	return eel
+
+def re_ridge2(kk,N_i):
+	from EX1Bc import EX1B
+	import time
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX1B()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_ridge(deg=2)
+		eel += (t_ns,)
+	return eel
+
+def re_ridge5(kk,N_i):
+	from EX1Bc import EX1B
+	import time
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX1B()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_ridge(deg=5)
+		eel += (t_ns,)
+	return eel
+
+def re_ridge8(kk,N_i):
+	from EX1Bc import EX1B
+	import time
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX1B()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_ridge(deg=8)
 		eel += (t_ns,)
 	return eel
 

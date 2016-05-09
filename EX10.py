@@ -6,7 +6,6 @@ import blspricer as bp
 import customML as cm
 import scipy.stats as scs
 from scipy.stats.distributions import norm
-from doe_lhs import lhs
 
 class EX10(object):
 	def __init__(self):
@@ -17,7 +16,7 @@ class EX10(object):
 		self.K = 100.; self.H = 95.
 		self.c = 246.42939112403042; self.perc = 0.99
 
-		self.I_pred = 2**15
+		self.I_pred = 32768
 
 		# --- portfolio price @ t = 0 ---
 		opt_val = lambda S: - 5.*bp.blsprice(S,self.K,self.rfr,self.T,self.sigma,'put') \
@@ -140,7 +139,6 @@ class EX10(object):
 			ValueTau[:] += -10. * C2do - 5. * P2
 		t_ns = time.time() - t0
 
-		#ran3 = norm(loc=0,scale=1).ppf(lhs(self.D,samples=self.I_pred))
 		mat = scipy.io.loadmat('sobol_100_32768.mat')
 		ran3_uniform = mat['sobol_100_32768']
 		ran3 = scs.norm.ppf(ran3_uniform[:,90:])
@@ -182,7 +180,7 @@ class EX10(object):
 		phi = cm.naivePolyFeature(self.X,deg=deg,norm=True)
 		lm = linear_model.RidgeCV(alphas=np.logspace(-4,0,5))
 		lm.fit(phi,self.y)
-		print lm.alpha_
+		#print lm.alpha_
 		t_tr = time.time() - t0
 
 		# Predicting
