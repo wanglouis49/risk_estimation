@@ -54,40 +54,49 @@ legend('deg=2','deg=5','deg=8','deg=10','deg=15')
 
 %% Ridge Regr
 clear; clc
-load('re_poly2_100_qmc.mat')
+load('re_svrCV_10.mat')
+mse_svr=mse;
+bias2_svr=bias2;
+var_svr=var;
+t_svr=t_tr+t_pr;
+load('re_poly8_10_qmc.mat')
 mse_poly=mse;
 bias2_poly=bias2;
 var_poly=var;
 t_poly=t_tr+t_pr;
-load('re_ridge2_100_qmc.mat')
+load('re_ridge8_10_qmc.mat')
 mse_ridge=mse;
 bias2_ridge=bias2;
 var_ridge=var;
 t_ridge=t_tr+t_pr;
 
 K_plot = logspace(1,7,7);
+K_svr = K(2:end);
 
-figure(1),loglog(K(3:end),mse_poly(3:end),K(3:end),mse_ridge(3:end),...
+figure(1),loglog(K(1:end),mse_poly(1:end),K(1:end),mse_ridge(1:end),...
+K_svr,mse_svr,...
 K_plot,5e-1*K_plot.^(-1)/K_plot(1)^(-1),'k-.')
 ylabel('MSE')
 axis([10, 1e7, 1e-8, 1e3])
 legend('Poly Regr','Ridge Regr','k^{-1}')
 
-figure(2),loglog(K(3:end),bias2_poly(3:end),K(3:end),bias2_ridge(3:end),...
+figure(2),loglog(K(1:end),bias2_poly(1:end),K(1:end),bias2_ridge(1:end),...
+K_svr,bias2_svr,...
 K_plot,5e-1*K_plot.^(-1)/K_plot(1)^(-1),'k-.')
 xlabel('Total number of inner stage samples k')
 ylabel('Bias^2')
 axis([10, 1e7, 1e-8, 1e3])
 legend('Poly Regr','Ridge Regr','k^{-1}')
 
-figure(3),loglog(K(3:end),var_poly(3:end),K(3:end),var_ridge(3:end),...
+figure(3),loglog(K(1:end),var_poly(1:end),K(1:end),var_ridge(1:end),...
+K_svr,var_svr,...
 K_plot,5e-1*K_plot.^(-1)/K_plot(1)^(-1),'k-.')
 xlabel('Total number of inner stage samples k')
 ylabel('Variance')
 axis([10, 1e7, 1e-8, 1e3])
 legend('Poly Regr','Ridge Regr','k^{-1}')
 
-figure(4),loglog(K,t_poly,K,t_ridge)
+figure(4),loglog(K,t_poly,K,t_ridge,K_svr,t_svr)
 xlabel('Total number of inner stage samples k')
 ylabel('time (s)')
 legend('Poly Regr','Ridge Regr')
