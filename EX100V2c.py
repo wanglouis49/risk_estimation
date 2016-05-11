@@ -158,7 +158,7 @@ class EX100V(object):
 		phi = cm.naivePolyFeature(self.X,deg=deg,norm=True)
 		lm = linear_model.RidgeCV(alphas=np.logspace(-4,0,5))
 		lm.fit(phi,self.y)
-		print lm.alpha_
+		#print lm.alpha_
 		t_tr = time.time() - t0
 
 		# Predicting
@@ -171,13 +171,13 @@ class EX100V(object):
 		return (eel, t_tr, t_pr)
 
 def re_poly2(kk,N_i):
-	from EX10 import EX10
+	from EX100V2c import EX100V
 	import time
 	import numpy as np
 	if kk/N_i < 1.:
 		eel = (np.nan, 0., 0., 0.)
 	else:
-		port = EX10()
+		port = EX100V()
 		t0 = time.time()
 		port.regr_data_prep(kk,N_i)
 		t_ns = time.time() - t0
@@ -186,13 +186,13 @@ def re_poly2(kk,N_i):
 	return eel
 
 def re_poly5(kk,N_i):
-	from EX10 import EX10
+	from EX100V2c import EX100V
 	import time
 	import numpy as np
 	if kk/N_i < 1.:
 		eel = (np.nan, 0., 0., 0.)
 	else:
-		port = EX10()
+		port = EX100V()
 		t0 = time.time()
 		port.regr_data_prep(kk,N_i)
 		t_ns = time.time() - t0
@@ -201,13 +201,13 @@ def re_poly5(kk,N_i):
 	return eel
 
 def re_poly8(kk,N_i):
-	from EX10 import EX10
+	from EX100V2c import EX100V
 	import time
 	import numpy as np
 	if kk/N_i < 1.:
 		eel = (np.nan, 0., 0., 0.)
 	else:
-		port = EX10()
+		port = EX100V()
 		t0 = time.time()
 		port.regr_data_prep(kk,N_i)
 		t_ns = time.time() - t0
@@ -216,13 +216,13 @@ def re_poly8(kk,N_i):
 	return eel
 
 def re_ridge2(kk,N_i):
-	from EX10 import EX10
+	from EX100V2c import EX100V
 	import time
 	import numpy as np
 	if kk/N_i < 1.:
 		eel = (np.nan, 0., 0., 0.)
 	else:
-		port = EX10()
+		port = EX100V()
 		t0 = time.time()
 		port.regr_data_prep(kk,N_i)
 		t_ns = time.time() - t0
@@ -231,13 +231,13 @@ def re_ridge2(kk,N_i):
 	return eel
 
 def re_ridge5(kk,N_i):
-	from EX10 import EX10
+	from EX100V2c import EX100V
 	import time
 	import numpy as np
 	if kk/N_i < 1.:
 		eel = (np.nan, 0., 0., 0.)
 	else:
-		port = EX10()
+		port = EX100V()
 		t0 = time.time()
 		port.regr_data_prep(kk,N_i)
 		t_ns = time.time() - t0
@@ -246,13 +246,13 @@ def re_ridge5(kk,N_i):
 	return eel
 
 def re_ridge8(kk,N_i):
-	from EX10 import EX10
+	from EX100V2c import EX100V
 	import time
 	import numpy as np
 	if kk/N_i < 1.:
 		eel = (np.nan, 0., 0., 0.)
 	else:
-		port = EX10()
+		port = EX100V()
 		t0 = time.time()
 		port.regr_data_prep(kk,N_i)
 		t_ns = time.time() - t0
