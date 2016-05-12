@@ -215,6 +215,21 @@ def re_poly8(kk,N_i):
 		eel += (t_ns,)
 	return eel
 
+def re_poly15(kk,N_i):
+	from EX100V2c import EX100V
+	import time
+	import numpy as np
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX100V()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_regr(deg=15)
+		eel += (t_ns,)
+	return eel
+
 def re_ridge2(kk,N_i):
 	from EX100V2c import EX100V
 	import time
@@ -257,6 +272,21 @@ def re_ridge8(kk,N_i):
 		port.regr_data_prep(kk,N_i)
 		t_ns = time.time() - t0
 		eel = port.poly_ridge(deg=8)
+		eel += (t_ns,)
+	return eel
+
+def re_ridge15(kk,N_i):
+	from EX100V2c import EX100V
+	import time
+	import numpy as np
+	if kk/N_i < 1.:
+		eel = (np.nan, 0., 0., 0.)
+	else:
+		port = EX100V()
+		t0 = time.time()
+		port.regr_data_prep(kk,N_i)
+		t_ns = time.time() - t0
+		eel = port.poly_ridge(deg=15)
 		eel += (t_ns,)
 	return eel
 
